@@ -25,16 +25,11 @@ if (token) {
         }
 
         try {
-            // 1. Generate embedding for user query
             const queryEmbedding = await generateEmbedding(userMessage);
-
-            // 2. Find relevant context from KB
             const context = await findRelevantContext(queryEmbedding);
-
-            // 3. Prepare prompt for Gemini
-            const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+            const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
             const prompt = `
-        You are a helpful customer support assistant.
+        You are a helpful customer support assistant as telegram bot.
         Use the following pieces of context to answer the user's question.
         If the context doesn't contain the answer, tell the user you don't know but try to be helpful based on general knowledge if appropriate, or ask them to contact human support.
         
@@ -44,14 +39,9 @@ if (token) {
         User Question: ${userMessage}
       `;
 
-            // 4. Get response from Gemini
             const result = await model.generateContent(prompt);
             const botResponse = result.response.text();
-
-            // 5. Send response to Telegram
             bot.sendMessage(chatId, botResponse);
-
-            // 6. Log the interaction
             const chatLog = new ChatLog({
                 telegramId: chatId.toString(),
                 username: msg.from.username || msg.from.first_name,
